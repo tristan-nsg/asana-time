@@ -1,0 +1,10 @@
+{
+  "tasks": {
+    "dev": "deno run --watch -A --unstable-temporal --env-file src/main.ts",
+    "start": "deno run -A --unstable-temporal --env-file src/main.ts"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1",
+    "meow": "npm:meow@^14.1.0"
+  }
+}
