@@ -158,4 +158,3 @@ export interface TimeTrackingEntity {
 }
 
 type BillableStatus = "billable" | "nonBillable" | "notApplicable";
-// test

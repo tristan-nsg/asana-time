@@ -78,4 +78,3 @@ if (import.meta.main) {
     await asana.setTimeTrackingStatus(entry, "nonBillable");
   }
 }
-// test
