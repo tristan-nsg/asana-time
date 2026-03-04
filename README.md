@@ -4,54 +4,21 @@ A command line tool for automated time tracking management in Asana. It marks al
 
 ## Install
 
-### 1. Install Deno
+Download the latest binary for your platform from the [install page](https://sidequest.sbs/asana-time) or from [GitHub Releases](https://github.com/tristan-nsg/asana-time/releases/latest).
 
-Deno is the runtime that powers this tool. [Install it](https://docs.deno.com/runtime/getting_started/installation/) by following the instructions for your operating system.
+| Platform | Architecture | File |
+|----------|-------------|------|
+| Windows | x86_64 | `asana-time_windows-x86_64.exe` |
+| Linux | x86_64 | `asana-time_linux-x86_64` |
+| Linux | ARM64 | `asana-time_linux-aarch64` |
+| macOS | Apple Silicon | `asana-time_mac-aarch64` |
+| macOS | Intel | `asana-time_mac-x86_64` |
 
-**Mac** — Open the Terminal app (search "Terminal" in Spotlight) and paste:
+After downloading, move the binary somewhere on your `PATH` and make it executable (macOS/Linux):
 ```sh
-curl -fsSL https://deno.land/install.sh | sh
+chmod +x asana-time*
+sudo mv asana-time* /usr/local/bin/asana-time
 ```
-
-**Windows** — Open PowerShell (search "PowerShell" in the Start menu) and paste:
-```powershell
-irm https://deno.land/install.ps1 | iex
-```
-
-**Linux** — Open a terminal and paste:
-```sh
-curl -fsSL https://deno.land/install.sh | sh
-```
-
-After installing, close and reopen your terminal, then verify it worked by running:
-```sh
-deno --version
-```
-You should see a version number printed. If you get an error, see the [Deno installation docs](https://docs.deno.com/runtime/getting_started/installation/) for troubleshooting.
-
-### 2. Install asana-time
-
-Run this command to install asana-time as a command you can use from anywhere:
-```sh
-deno install -A --unstable-temporal -n asana-time https://sidequest.sbs/asana-time
-```
-
-<details>
-<summary>What does <code>-A</code> allow?</summary>
-
-The `-A` flag grants the tool all permissions for simplicity. If you'd prefer to restrict permissions to only what the tool needs, use this command instead:
-
-```sh
-deno install --allow-env=ASANA_TOKEN,ASANA_WORKSPACE,ASANA_USER,LOG_LEVEL --allow-net=app.asana.com --unstable-temporal -n asana-time https://sidequest.sbs/asana-time
-```
-
-| Permission | What it allows | Why it's needed |
-|------------|---------------|-----------------|
-| `--allow-env=ASANA_TOKEN,ASANA_WORKSPACE,ASANA_USER,LOG_LEVEL` | Read these specific environment variables | Load your Asana credentials and log level configuration |
-| `--allow-net=app.asana.com` | Network access to `app.asana.com` only | Make API requests to the Asana REST API |
-| `--unstable-temporal` | Enable the Temporal date API | Used to determine today's date for filtering time entries |
-
-</details>
 
 ## Configure
 
@@ -136,7 +103,7 @@ src/
 
 The tool is built on three modules:
 
-**`main.ts`** — Parses CLI flags using [meow](https://github.com/sindresorhus/meow), resolves configuration from environment variables or flags, validates that required config is present, and orchestrates the main loop: fetch today's time entries, then mark each one as non-billable.
+**`main.ts`** — Parses CLI flags using [`@std/cli`](https://jsr.io/@std/cli), resolves configuration from environment variables or flags, validates that required config is present, and orchestrates the main loop: fetch today's time entries, then mark each one as non-billable.
 
 **`asana.ts`** — A client class wrapping the [Asana REST API v1.0](https://developers.asana.com/reference/rest-api-reference). Handles authentication (Bearer token), pagination, and exposes methods for:
 - `timeEntries(from?, to?)` — Fetch time tracking entries for the configured user and workspace. Defaults to today. Uses the [Temporal API](https://tc39.es/proposal-temporal/docs/) for dates.
@@ -166,10 +133,19 @@ The Deno tasks use explicit permissions instead of `--allow-all`:
 | `--unstable-temporal` | Enable the Temporal date API |
 | `--env-file` | Load variables from `.env` |
 
+### Building
+
+Compiled binaries for all platforms can be built with:
+```sh
+deno task build
+```
+
+Binaries are output to the `dist/` directory.
+
 ### Dependencies
 
 | Package | Source | Purpose |
 |---------|--------|---------|
-| [meow](https://github.com/sindresorhus/meow) `^14.1.0` | npm | CLI argument parsing |
+| [@std/cli](https://jsr.io/@std/cli) `^1.0.28` | JSR | CLI argument parsing |
 | [@logtape/logtape](https://logtape.org/) `^2.0.4` | JSR | Structured logging |
 | [@std/assert](https://jsr.io/@std/assert) `1` | JSR | Test assertions |
