@@ -1,6 +1,6 @@
 import { parseArgs } from "@std/cli/parse-args";
-import { Asana } from "./asana.ts";
-import { logger } from "./log.ts";
+import { Asana } from "@/asana.ts";
+import { logger } from "@/log.ts";
 
 const VERSION = `v0.0.2 (${Deno.build.os}/${Deno.build.arch})`;
 

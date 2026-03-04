@@ -80,6 +80,24 @@ export class Asana {
     return data.gid;
   }
 
+  async users(): Promise<User[]> {
+    const url = new URL(`https://app.asana.com/api/1.0/users`);
+    url.searchParams.set("workspace", this.workspace);
+    url.searchParams.set("opt_fields", "gid,name,email,resource_type");
+
+    const resp = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!resp.ok) throw new Error(`${resp.status} ${resp.statusText}`);
+    const { data } = await resp.json();
+
+    return data as User[];
+  }
+
   /**
    * Returns the permalink URL for a given task, or `null` if not found.
    * @param task_gid - The task GID to look up.
@@ -158,3 +176,10 @@ export interface TimeTrackingEntity {
 }
 
 type BillableStatus = "billable" | "nonBillable" | "notApplicable";
+
+export interface User {
+  gid: string;
+  name: string;
+  email: string;
+  resource_type: string;
+}
