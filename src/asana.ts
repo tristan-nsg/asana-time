@@ -1,16 +1,19 @@
+import { logger } from "./log.ts";
+
 /** Client for the Asana REST API. */
 export class Asana {
+  private log = logger("asana");
+
   /**
    * @param workspace - The workspace GID to query against.
    * @param token - A personal access token for authentication.
-   * @param assignee - User GID or email. Defaults to `"me"`.
+   * @param user - User GID or email. Defaults to `"me"`.
    */
   constructor(
     public readonly workspace: string,
     public readonly token: string,
-    public readonly assignee?: string,
-  ) {
-  }
+    public readonly user?: string,
+  ) {}
 
   /**
    * Fetches time tracking entries for the workspace.
@@ -20,12 +23,12 @@ export class Asana {
   async timeEntries(
     from?: Temporal.PlainDate,
     to?: Temporal.PlainDate,
-  ): Promise<object[]> {
+  ): Promise<TimeTrackingEntity[]> {
     const url = new URL("https://app.asana.com/api/1.0/time_tracking_entries");
     url.searchParams.set("workspace", this.workspace);
 
-    const assignee = this.assignee ?? await this.me();
-    url.searchParams.set("assignee", assignee);
+    const user = this.user ?? await this.me();
+    url.searchParams.set("user", user);
     // Optional but neccessary fields
     url.searchParams.set(
       "opt_fields",
@@ -37,7 +40,7 @@ export class Asana {
     url.searchParams.set("entered_on_start_date", start.toString());
     url.searchParams.set("entered_on_end_date", end.toString());
 
-    const results = [];
+    const results: TimeTrackingEntity[] = [];
 
     while (true) {
       const resp = await fetch(
@@ -49,7 +52,10 @@ export class Asana {
         },
       );
 
-      if (!resp.ok) throw new Error(`${resp.status} ${resp.statusText}`);
+      if (!resp.ok) {
+        const { message } = await resp.json();
+        throw new Error(`${resp.status} ${resp.statusText}: ${message}`);
+      }
 
       const { data, next_page } = await resp.json();
       results.push(...data);
@@ -63,7 +69,10 @@ export class Asana {
 
   async me(): Promise<string> {
     const resp = await fetch("https://app.asana.com/api/1.0/users/me", {
-      headers: { Authorization: `Bearer ${this.token}` },
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+        "Content-Type": "application/json",
+      },
     });
     if (!resp.ok) throw new Error(`${resp.status} ${resp.statusText}`);
     const { data } = await resp.json();
@@ -82,7 +91,10 @@ export class Asana {
     url.searchParams.set("opt_fields", "permalink_url");
 
     const resp = await fetch(url, {
-      headers: { Authorization: `Bearer ${this.token}` },
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+        "Content-Type": "application/json",
+      },
     });
 
     if (!resp.ok) {
@@ -99,4 +111,50 @@ export class Asana {
 
     return data.permalink_url;
   }
+
+  async setTimeTrackingStatus(
+    entity: TimeTrackingEntity,
+    status: BillableStatus,
+  ): Promise<TimeTrackingEntity> {
+    if (entity.billable_status === status) return entity;
+    entity.billable_status = status;
+
+    const url = new URL(
+      `https://app.asana.com/api/1.0/time_tracking_entries/${entity.gid}`,
+    );
+
+    const resp = await fetch(url, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        data: {
+          billable_status: status,
+        },
+      }),
+    });
+
+    if (!resp.ok) throw new Error(`${resp.status} ${resp.statusText}`);
+
+    return entity;
+  }
 }
+
+export interface TimeTrackingEntity {
+  gid: string;
+  duration_minutes: number;
+  task: {
+    gid: string;
+    assignee: {
+      gid: string;
+    };
+    name: string;
+    permalink_url: string;
+  };
+  entered_on: string | Temporal.PlainDate;
+  billable_status: BillableStatus;
+}
+
+type BillableStatus = "billable" | "nonBillable" | "notApplicable";
