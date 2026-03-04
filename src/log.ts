@@ -8,9 +8,9 @@ await configure({
       lowestLevel: "warning",
       sinks: ["console"],
     },
-    // deno-lint-ignore no-explicit-any
     {
       category: "asana-time",
+      // deno-lint-ignore no-explicit-any
       lowestLevel: Deno.env.get("LOG_LEVEL") as any ?? "info",
       sinks: ["console"],
     },
