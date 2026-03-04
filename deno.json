@@ -1,7 +1,7 @@
 {
   "tasks": {
-    "dev": "deno run --watch -A --unstable-temporal --env-file src/main.ts",
-    "start": "deno run -A --unstable-temporal --env-file src/main.ts"
+    "dev": "deno run --watch --allow-env=ASANA_TOKEN,ASANA_WORKSPACE,ASANA_USER,LOG_LEVEL --allow-net=app.asana.com --unstable-temporal --env-file src/main.ts",
+    "start": "deno run --allow-env=ASANA_TOKEN,ASANA_WORKSPACE,ASANA_USER,LOG_LEVEL --allow-net=app.asana.com --unstable-temporal --env-file src/main.ts"
   },
   "imports": {
     "@logtape/logtape": "jsr:@logtape/logtape@^2.0.4",
