@@ -1,7 +1,15 @@
 {
   "tasks": {
-    "dev": "deno run --watch --allow-env=ASANA_TOKEN,ASANA_WORKSPACE,ASANA_USER,LOG_LEVEL --allow-net=app.asana.com --unstable-temporal --env-file src/main.ts",
-    "start": "deno run --allow-env=ASANA_TOKEN,ASANA_WORKSPACE,ASANA_USER,LOG_LEVEL --allow-net=app.asana.com --unstable-temporal --env-file src/main.ts"
+    "flags": "echo '--allow-env=ASANA_TOKEN,ASANA_WORKSPACE,ASANA_USER,LOG_LEVEL,YARGS_MIN_NODE_VERSION --allow-net=app.asana.com --unstable-temporal --env-file'",
+    "dev": "deno run --watch $(deno task -q flags) src/main.ts",
+    "start": "deno run $(deno task -q flags) src/main.ts",
+    "clean": "rm -rf dist",
+    "build": "deno task clean && deno task build:windows && deno task build:linux && deno task build:linux-arm && deno task build:mac && deno task build:mac-arm",
+    "build:windows": "deno compile -A --target x86_64-pc-windows-msvc --output dist/asana-time_windows-x86_64.exe src/main.ts",
+    "build:linux": "deno compile -A --target x86_64-unknown-linux-gnu --output dist/asana-time_linux-x86_64 src/main.ts",
+    "build:linux-arm": "deno compile -A --target aarch64-unknown-linux-gnu --output dist/asana-time_linux-aarch64 src/main.ts",
+    "build:mac": "deno compile -A --target x86_64-apple-darwin --output dist/asana-time_mac-x86_64 src/main.ts",
+    "build:mac-arm": "deno compile -A --target aarch64-apple-darwin --output dist/asana-time_mac-aarch64 src/main.ts"
   },
   "imports": {
     "@logtape/logtape": "jsr:@logtape/logtape@^2.0.4",
