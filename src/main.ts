@@ -2,7 +2,6 @@ import meow from "meow";
 import { Asana } from "./asana.ts";
 import { logger } from "./log.ts";
 
-
 /** CLI argument parser with help text and flag definitions. */
 const cli = meow(
   `
@@ -13,9 +12,11 @@ const cli = meow(
     --workspace_gid, -w  Asana workspace GID (or set ASANA_GID env var)
     --token, -t          Asana personal access token (or set ASANA_TOKEN env var)
     --user, -u           Asana user GID or email (or set ASANA_USER env var, defaults to "me")
+    --version, -v        Show version number
 `,
   {
     importMeta: import.meta,
+    version: `v0.0.1 (${Deno.build.os}/${Deno.build.arch})`,
     flags: {
       workspace_gid: {
         type: "string",
@@ -72,7 +73,10 @@ if (import.meta.main) {
 
   const asana = new Asana(WORKSPACE_GID!, ASANA_TOKEN!, ASANA_USER);
   for (const entry of await asana.timeEntries()) {
-    log.debug("Processing time entry {gid} for task {task}.", { gid: entry.gid, task: entry.task.name });
+    log.debug("Processing time entry {gid} for task {task}.", {
+      gid: entry.gid,
+      task: entry.task.name,
+    });
     await asana.setTimeTrackingStatus(entry, "nonBillable");
   }
 }
