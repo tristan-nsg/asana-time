@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "flags": "echo '--allow-env=ASANA_TOKEN,ASANA_WORKSPACE,ASANA_USER,LOG_LEVEL,YARGS_MIN_NODE_VERSION --allow-net=app.asana.com --unstable-temporal --env-file'",
+    "flags": "echo '--allow-env=ASANA_TOKEN,ASANA_WORKSPACE,ASANA_USER,LOG_LEVEL --allow-net=app.asana.com --unstable-temporal --env-file'",
     "dev": "deno run --watch $(deno task -q flags) src/main.ts",
     "start": "deno run $(deno task -q flags) src/main.ts",
     "clean": "rm -rf dist",
@@ -14,6 +14,6 @@
   "imports": {
     "@logtape/logtape": "jsr:@logtape/logtape@^2.0.4",
     "@std/assert": "jsr:@std/assert@1",
-    "meow": "npm:meow@^14.1.0"
+    "@std/cli": "jsr:@std/cli@^1.0.28"
   }
 }

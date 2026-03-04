@@ -1,45 +1,43 @@
-import meow from "meow";
+import { parseArgs } from "@std/cli/parse-args";
 import { Asana } from "./asana.ts";
 import { logger } from "./log.ts";
 
-/** CLI argument parser with help text and flag definitions. */
-const cli = meow(
-  `
+const VERSION = `v0.0.2 (${Deno.build.os}/${Deno.build.arch})`;
+
+const HELP = `
   Usage
     $ asana-time
 
   Options
-    --workspace_gid, -w  Asana workspace GID (or set ASANA_WORKSPACE env var)
+    --workspace, -w  Asana workspace GID (or set ASANA_WORKSPACE env var)
     --token, -t          Asana personal access token (or set ASANA_TOKEN env var)
     --user, -u           Asana user GID or email (or set ASANA_USER env var, defaults to "me")
     --version, -v        Show version number
-`,
-  {
-    importMeta: import.meta,
-    version: `v0.0.1 (${Deno.build.os}/${Deno.build.arch})`,
-    flags: {
-      workspace_gid: {
-        type: "string",
-        shortFlag: "w",
-      },
-      token: {
-        type: "string",
-        shortFlag: "t",
-      },
-      user: {
-        type: "string",
-        shortFlag: "u",
-      },
-    },
-  },
-);
+    --help, -h           Show this help
+`;
 
-/** Workspace GID from env or `--workspace_gid` flag. */
-const ASANA_WORKSPACE = Deno.env.get("ASANA_WORKSPACE") ?? cli.flags.workspaceGid;
+const args = parseArgs(Deno.args, {
+  string: ["workspace", "token", "user"],
+  boolean: ["help", "version"],
+  alias: { w: "workspace", t: "token", u: "user", h: "help", v: "version" },
+});
+
+if (args.help) {
+  console.log(HELP);
+  Deno.exit(0);
+}
+
+if (args.version) {
+  console.log(VERSION);
+  Deno.exit(0);
+}
+
+/** Workspace GID from env or `--workspace` flag. */
+const ASANA_WORKSPACE = Deno.env.get("ASANA_WORKSPACE") ?? args.workspace;
 /** Personal access token from env or `--token` flag. */
-const ASANA_TOKEN = Deno.env.get("ASANA_TOKEN") ?? cli.flags.token;
+const ASANA_TOKEN = Deno.env.get("ASANA_TOKEN") ?? args.token;
 /** User GID or email from env or `--user` flag. */
-const ASANA_USER = Deno.env.get("ASANA_USER") ?? cli.flags.user;
+const ASANA_USER = Deno.env.get("ASANA_USER") ?? args.user;
 
 if (import.meta.main) {
   let missingConfig = false;
