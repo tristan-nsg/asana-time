@@ -20,3 +20,4 @@ await configure({
 export function logger(category: string) {
   return getLogger(["asana-time", category]);
 }
+// test

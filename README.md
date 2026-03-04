@@ -178,3 +178,5 @@ Binaries are output to the `dist/` directory.
 | [@std/cli](https://jsr.io/@std/cli) `^1.0.28`     | JSR    | CLI argument parsing |
 | [@logtape/logtape](https://logtape.org/) `^2.0.4` | JSR    | Structured logging   |
 | [@std/assert](https://jsr.io/@std/assert) `1`     | JSR    | Test assertions      |
+
+<!-- test -->
